@@ -7,13 +7,13 @@ import { formatCurrency } from '@/utils/formatCurrency';
 
 interface InputFieldProps {
     label: string;
-    value: number;
-    onChange: (val: number) => void;
+    value: number | string;
+    onChange: (val: number | string) => void;
     unit: string;
     step?: number;
     min?: number;
     max?: number;
-    formatBadge: (value: number) => string;
+    formatBadge: (value: number | string) => string;
 }
 
 const InputField = ({
@@ -38,8 +38,26 @@ const InputField = ({
                 <input
                     type="number"
                     value={value}
-                    onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                    step={step}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '') {
+                            onChange('');
+                            return;
+                        }
+                        // 소수점이 있거나 '0.'으로 시작하는 경우는 그대로 허용
+                        if (val.includes('.') || val === '0') {
+                            onChange(val);
+                            return;
+                        }
+                        // 그 외의 경우 (정수 입력 등) Leading zero 제거
+                        if (val.length > 1 && val.startsWith('0')) {
+                            onChange(val.replace(/^0+/, ''));
+                            return;
+                        }
+                        onChange(val);
+                    }}
+                    placeholder="0"
+                    step="any"
                     min={min}
                     max={max}
                     className="w-full px-3 py-2 pr-12 bg-slate-50 border border-slate-200 rounded-lg text-right font-mono text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
@@ -54,18 +72,18 @@ const InputField = ({
 
 export default function LuckyPage() {
     // 입력 상태
-    const [weeklyGames, setWeeklyGames] = useState(5);   // 주 5게임 (5천원)
-    const [prizeAmount, setPrizeAmount] = useState(20);  // 1등 당첨금 20억
+    const [weeklyGames, setWeeklyGames] = useState<number | string>(5);   // 주 5게임 (5천원)
+    const [prizeAmount, setPrizeAmount] = useState<number | string>(20);  // 1등 당첨금 20억
 
     // 계산 로직 실행
     const luck = useLuckyCalc({
-        weeklyGames,
-        prizeAmount
+        weeklyGames: Number(weeklyGames),
+        prizeAmount: Number(prizeAmount)
     });
 
     // 배지 포맷팅
-    const formatGamesBadge = (val: number) => `매주 ${val}게임`;
-    const formatMoneyBadge = (val: number) => `${val}억`;
+    const formatGamesBadge = (val: number | string) => `매주 ${val}게임`;
+    const formatMoneyBadge = (val: number | string) => `${val}억`;
 
     // 초기화
     const clearInputs = () => {
@@ -124,11 +142,11 @@ export default function LuckyPage() {
                                 <h4 className="text-xs font-bold text-slate-500 mb-2">구매 비용 요약</h4>
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-slate-600">주간 비용</span>
-                                    <span className="font-bold text-slate-800">{formatCurrency(weeklyGames * 1000)}원</span>
+                                    <span className="font-bold text-slate-800">{formatCurrency(Number(weeklyGames) * 1000)}원</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm mt-1">
                                     <span className="text-slate-600">연간 비용</span>
-                                    <span className="font-bold text-slate-800">{formatCurrency(weeklyGames * 1000 * 52)}원</span>
+                                    <span className="font-bold text-slate-800">{formatCurrency(Number(weeklyGames) * 1000 * 52)}원</span>
                                 </div>
                                 <div className="mt-3 text-[10px] text-slate-400 leading-tight">
                                     * 로또 1게임 1,000원 기준<br />

@@ -23,6 +23,7 @@ const SOURCE_LABELS: Record<string, string> = {
     moef: '기획재정부',
     fsc: '금융위원회',
     krx: '한국거래소',
+    naver: '네이버 뉴스',
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -32,6 +33,9 @@ const CATEGORY_LABELS: Record<string, string> = {
     'etf-listing': 'ETF 상장',
     'market-volatility': '시장 동향',
     'economic-indicator': '경제 지표',
+    crypto: '암호화폐',
+    'us-market': '미국증시',
+    'asset-management': '자산관리',
     general: '일반',
 };
 

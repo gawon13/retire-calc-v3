@@ -21,13 +21,13 @@ import {
 // 입력 필드 컴포넌트 (Page.tsx와 동일한 디자인 유지)
 interface InputFieldProps {
     label: string;
-    value: number;
-    onChange: (val: number) => void;
+    value: number | string;
+    onChange: (val: number | string) => void;
     unit: string;
     step?: number;
     min?: number;
     max?: number;
-    formatBadge: (value: number) => string;
+    formatBadge: (value: number | string) => string;
 }
 
 const InputField = ({
@@ -52,8 +52,26 @@ const InputField = ({
                 <input
                     type="number"
                     value={value}
-                    onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                    step={step}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '') {
+                            onChange('');
+                            return;
+                        }
+                        // 소수점이 있거나 '0.'으로 시작하는 경우는 그대로 허용
+                        if (val.includes('.') || val === '0') {
+                            onChange(val);
+                            return;
+                        }
+                        // 그 외의 경우 (정수 입력 등) Leading zero 제거
+                        if (val.length > 1 && val.startsWith('0')) {
+                            onChange(val.replace(/^0+/, ''));
+                            return;
+                        }
+                        onChange(val);
+                    }}
+                    placeholder="0"
+                    step="any"
                     min={min}
                     max={max}
                     className="w-full px-3 py-2 pr-8 bg-slate-50 border border-slate-200 rounded-lg text-right font-mono text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
@@ -73,25 +91,25 @@ export default function CompoundCalculator() {
     const [chartRef, chartReady, chartW, chartH] = useChartReady();
 
     // 입력 상태
-    const [initialAmount, setInitialAmount] = useState(1000); // 만원
-    const [monthlyAmount, setMonthlyAmount] = useState(100);  // 만원
-    const [years, setYears] = useState(10);                   // 년
-    const [rate, setRate] = useState(5.0);                    // %
+    const [initialAmount, setInitialAmount] = useState<number | string>(1000); // 만원
+    const [monthlyAmount, setMonthlyAmount] = useState<number | string>(100);  // 만원
+    const [years, setYears] = useState<number | string>(10);                   // 년
+    const [rate, setRate] = useState<number | string>(5.0);                    // %
 
     const [isTableOpen, setIsTableOpen] = useState(false);
 
     // 계산 로직 실행
     const result = useCompoundCalc({
-        initialAmount,
-        monthlyAmount,
-        years,
-        rate,
+        initialAmount: Number(initialAmount),
+        monthlyAmount: Number(monthlyAmount),
+        years: Number(years),
+        rate: Number(rate),
     });
 
     // InputField에 전달할 래퍼 함수들
-    const formatMoneyBadge = (val: number) => formatCurrency(val * 10000);
-    const formatYearBadge = (val: number) => `${val}년 후`;
-    const formatRateBadge = (val: number) => `연 ${val}%`;
+    const formatMoneyBadge = (val: number | string) => formatCurrency(Number(val) * 10000);
+    const formatYearBadge = (val: number | string) => `${val}년 후`;
+    const formatRateBadge = (val: number | string) => `연 ${val}%`;
 
     // 축 포맷팅 (동적 단위)
     const formatAxisY = (value: number) => {

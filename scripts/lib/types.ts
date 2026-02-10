@@ -1,4 +1,4 @@
-export type Source = 'moef' | 'fsc' | 'krx';
+export type Source = 'moef' | 'fsc' | 'krx' | 'naver';
 
 export type Category =
     | 'tax-reform'
@@ -7,6 +7,9 @@ export type Category =
     | 'etf-listing'
     | 'market-volatility'
     | 'economic-indicator'
+    | 'crypto'
+    | 'us-market'
+    | 'asset-management'
     | 'general';
 
 export type Priority = 1 | 2 | 3;

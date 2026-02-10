@@ -13,6 +13,10 @@ const TERM_MAP: Record<string, string> = {
     '코스피': 'kospi',
     '코스닥': 'kosdaq',
     '환율': 'exchange-rate',
+    '비트코인': 'bitcoin',
+    '나스닥': 'nasdaq',
+    '재테크': 'finance',
+    '자산관리': 'asset-mgmt',
 };
 
 export function generateSlug(title: string, source: Source): string {

@@ -27,6 +27,8 @@ jobs:
       - name: Run collector
         env:
           DATA_GO_KR_API_KEY: ${{ secrets.DATA_GO_KR_API_KEY }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
         run: npx tsx scripts/collect-insights.ts
 
       - name: Commit and push new articles

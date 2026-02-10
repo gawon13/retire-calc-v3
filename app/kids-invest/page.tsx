@@ -20,13 +20,13 @@ import {
 
 interface InputFieldProps {
     label: string;
-    value: number;
-    onChange: (val: number) => void;
+    value: number | string;
+    onChange: (val: number | string) => void;
     unit: string;
     step?: number;
     min?: number;
     max?: number;
-    formatBadge: (value: number) => string;
+    formatBadge: (value: number | string) => string;
 }
 
 const InputField = ({
@@ -51,8 +51,26 @@ const InputField = ({
                 <input
                     type="number"
                     value={value}
-                    onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                    step={step}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '') {
+                            onChange('');
+                            return;
+                        }
+                        // 소수점이 있거나 '0.'으로 시작하는 경우는 그대로 허용
+                        if (val.includes('.') || val === '0') {
+                            onChange(val);
+                            return;
+                        }
+                        // 그 외의 경우 (정수 입력 등) Leading zero 제거
+                        if (val.length > 1 && val.startsWith('0')) {
+                            onChange(val.replace(/^0+/, ''));
+                            return;
+                        }
+                        onChange(val);
+                    }}
+                    placeholder="0"
+                    step="any"
                     min={min}
                     max={max}
                     className="w-full px-3 py-2 pr-8 bg-slate-50 border border-slate-200 rounded-lg text-right font-mono text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
@@ -72,28 +90,28 @@ export default function KidsInvestmentSimulator() {
     const [chartRef, chartReady, chartW, chartH] = useChartReady();
 
     // 입력 상태
-    const [currentAge, setCurrentAge] = useState(0);    // 현재 나이 (0세)
-    const [targetAge, setTargetAge] = useState(20);     // 목표 나이 (성인)
-    const [initialAmount, setInitialAmount] = useState(2000); // 증여세 면제 한도 (2천만원)
-    const [monthlyAmount, setMonthlyAmount] = useState(10);   // 월 10만원
-    const [rate, setRate] = useState(8.0);              // 연 8% (장기 투자 가정)
+    const [currentAge, setCurrentAge] = useState<number | string>(0);    // 현재 나이 (0세)
+    const [targetAge, setTargetAge] = useState<number | string>(20);     // 목표 나이 (성인)
+    const [initialAmount, setInitialAmount] = useState<number | string>(2000); // 증여세 면제 한도 (2천만원)
+    const [monthlyAmount, setMonthlyAmount] = useState<number | string>(10);   // 월 10만원
+    const [rate, setRate] = useState<number | string>(8.0);              // 연 8% (장기 투자 가정)
 
     // 상세 보기 토글
     const [showDetail, setShowDetail] = useState(false);
 
     // 계산 로직 실행
     const result = useKidsCalc({
-        currentAge,
-        targetAge,
-        initialAmount,
-        monthlyAmount,
-        rate,
+        currentAge: Number(currentAge),
+        targetAge: Number(targetAge),
+        initialAmount: Number(initialAmount),
+        monthlyAmount: Number(monthlyAmount),
+        rate: Number(rate),
     });
 
     // 배지 포맷팅
-    const formatMoneyBadge = (val: number) => formatCurrency(val * 10000);
-    const formatAgeBadge = (val: number) => `${val}세`;
-    const formatRateBadge = (val: number) => `연 ${val}%`;
+    const formatMoneyBadge = (val: number | string) => formatCurrency(Number(val) * 10000);
+    const formatAgeBadge = (val: number | string) => `${val}세`;
+    const formatRateBadge = (val: number | string) => `연 ${val}%`;
 
     // 축 포맷팅 (동적 단위)
     const formatAxisY = (value: number) => {
@@ -189,7 +207,7 @@ export default function KidsInvestmentSimulator() {
                                     value={targetAge}
                                     onChange={setTargetAge}
                                     unit="세"
-                                    min={currentAge + 1}
+                                    min={Number(currentAge) + 1}
                                     max={100}
                                     formatBadge={formatAgeBadge}
                                 />
@@ -336,7 +354,7 @@ export default function KidsInvestmentSimulator() {
                                             name="연금저축 (세후)"
                                         />
                                         {/* 주요 이벤트 마커 */}
-                                        {currentAge < 20 && targetAge >= 20 && (
+                                        {Number(currentAge) < 20 && Number(targetAge) >= 20 && (
                                             <ReferenceLine
                                                 x={20}
                                                 stroke="#94a3b8"
@@ -349,7 +367,7 @@ export default function KidsInvestmentSimulator() {
                                                 }}
                                             />
                                         )}
-                                        {currentAge < 30 && targetAge >= 30 && (
+                                        {Number(currentAge) < 30 && Number(targetAge) >= 30 && (
                                             <ReferenceLine
                                                 x={30}
                                                 stroke="#94a3b8"

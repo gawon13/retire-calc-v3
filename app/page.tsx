@@ -21,13 +21,13 @@ import {
 // 입력 필드 컴포넌트 - 외부로 분리하여 포커스 이탈 버그 수정
 interface InputFieldProps {
     label: string;
-    value: number;
-    onChange: (val: number) => void;
+    value: number | string;
+    onChange: (val: number | string) => void;
     unit: string;
     step?: number;
     min?: number;
     max?: number;
-    formatBadge: (value: number) => string;
+    formatBadge: (value: number | string) => string;
 }
 
 const InputField = ({
@@ -53,8 +53,28 @@ const InputField = ({
                 <input
                     type="number"
                     value={value}
-                    onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                    step={step}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '') {
+                            onChange('');
+                            return;
+                        }
+                        // 소수점이 있거나 '0.'으로 시작하는 경우는 그대로 허용
+                        if (val.includes('.') || val === '0') {
+                            onChange(val);
+                            return;
+                        }
+                        // 그 외의 경우 (정수 입력 등) Leading zero 제거
+                        // 예: "05" -> "5", "0100" -> "100"
+                        // 단, "0" 그 자체는 위에서 처리됨.
+                        if (val.length > 1 && val.startsWith('0')) {
+                            onChange(val.replace(/^0+/, ''));
+                            return;
+                        }
+                        onChange(val);
+                    }}
+                    placeholder="0"
+                    step="any"
                     min={min}
                     max={max}
                     className="w-full px-3 py-2 pr-8 bg-slate-50 border border-slate-200 rounded-lg text-right font-mono text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
@@ -73,37 +93,43 @@ export default function RetirementSimulator() {
     const [chartRef, chartReady, chartW, chartH] = useChartReady();
 
     // 기본 정보
-    const [ageNow, setAgeNow] = useState(35);
-    const [ageRetire, setAgeRetire] = useState(55);
-    const [targetMonthly, setTargetMonthly] = useState(200);
-    const [monthlyInvest, setMonthlyInvest] = useState(150);
+    const [ageNow, setAgeNow] = useState<number | string>(35);
+    const [ageRetire, setAgeRetire] = useState<number | string>(55);
+    const [targetMonthly, setTargetMonthly] = useState<number | string>(200);
+    const [monthlyInvest, setMonthlyInvest] = useState<number | string>(150);
 
     // 자산 정보
-    const [assetSafe, setAssetSafe] = useState(1000);
-    const [assetInvest, setAssetInvest] = useState(1000);
-    const [rateSafe, setRateSafe] = useState(2.0);
-    const [rateInvest, setRateInvest] = useState(5.0);
+    const [assetSafe, setAssetSafe] = useState<number | string>(1000);
+    const [assetInvest, setAssetInvest] = useState<number | string>(1000);
+    const [rateSafe, setRateSafe] = useState<number | string>(2.0);
+    const [rateInvest, setRateInvest] = useState<number | string>(5.0);
 
     // 인출 전략
     const [withdrawalStrategy, setWithdrawalStrategy] = useState<'uniform' | 'target'>('uniform');
     const [isTableOpen, setIsTableOpen] = useState(false);
 
-    // 시뮬레이션 실행
+    // 시뮬레이션 실행 (계산 시 number로 변환)
     const result = useRetirement({
-        ageNow,
-        ageRetire,
-        targetMonthly,
-        monthlyInvest,
-        assetSafe,
-        assetInvest,
-        rateSafe,
-        rateInvest,
+        ageNow: Number(ageNow),
+        ageRetire: Number(ageRetire),
+        targetMonthly: Number(targetMonthly),
+        monthlyInvest: Number(monthlyInvest),
+        assetSafe: Number(assetSafe),
+        assetInvest: Number(assetInvest),
+        rateSafe: Number(rateSafe),
+        rateInvest: Number(rateInvest),
         withdrawalStrategy,
     });
 
     // 단위 배지 포맷팅
-    const formatBadge = (value: number) => {
-        return formatCurrency(value * 10000);
+    const formatBadge = (value: number | string) => {
+        const val = Number(value);
+        return formatCurrency(val * 10000);
+    };
+
+    // 나이 배지 포맷팅 (단위 제거)
+    const formatAgeBadge = (value: number | string) => {
+        return `${value}세`;
     };
 
     // 축 포맷팅
@@ -212,14 +238,14 @@ export default function RetirementSimulator() {
                                 </button>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
-                                <InputField label="현재 나이" value={ageNow} onChange={setAgeNow} unit="세" formatBadge={formatBadge} />
+                                <InputField label="현재 나이" value={ageNow} onChange={setAgeNow} unit="세" formatBadge={formatAgeBadge} />
                                 <InputField
                                     label="은퇴 목표"
                                     value={ageRetire}
                                     onChange={setAgeRetire}
                                     unit="세"
-                                    min={ageNow + 1}
-                                    formatBadge={formatBadge}
+                                    min={Number(ageNow) + 1}
+                                    formatBadge={formatAgeBadge}
                                 />
                                 <InputField
                                     label="매월 투자"
@@ -396,7 +422,7 @@ export default function RetirementSimulator() {
                                         />
                                         <Tooltip content={<CustomTooltip />} />
                                         <ReferenceLine
-                                            x={ageRetire}
+                                            x={Number(ageRetire)}
                                             stroke="#94a3b8"
                                             strokeDasharray="3 3"
                                             label={{
