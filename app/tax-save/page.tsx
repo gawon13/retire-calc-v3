@@ -63,6 +63,8 @@ const InputField = ({
     );
 };
 
+
+
 export default function TaxSavingSimulator() {
 
     const [chartRef, chartReady, chartW, chartH] = useChartReady();
@@ -93,11 +95,23 @@ export default function TaxSavingSimulator() {
     const formatRateBadge = (val: number) => `연 ${val}%`;
     const formatTaxBadge = (val: number) => `${val}%`;
 
-    // 축 포맷팅
+    // 축 포맷팅 (동적 단위)
     const formatAxisY = (value: number) => {
-        if (value >= 100000000) return `${(value / 100000000).toFixed(1)}억`;
-        if (value >= 10000) return `${Math.floor(value / 10000)}만`;
-        return `${value}`;
+        if (value === 0) return '0';
+
+        // 데이터의 최대값 확인 (동적 단위를 위해)
+        const maxBalance = Math.max(...result.yearlyData.map(d => Math.max(d.amountSaving, d.amountGeneral)));
+
+        // 1억 이상 -> 억 단위
+        if (maxBalance >= 100000000) {
+            return `${(value / 100000000).toFixed(1)}억`;
+        }
+        // 1천만원 이상 -> 천만 단위
+        if (maxBalance >= 10000000) {
+            return `${(value / 10000000).toFixed(0)}천만`;
+        }
+        // 그 외 -> 백만 단위
+        return `${(value / 1000000).toFixed(0)}백만`;
     };
 
     // 차트 툴팁
@@ -144,7 +158,7 @@ export default function TaxSavingSimulator() {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <div className="max-w-6xl mx-auto px-6 py-6">
+            <div className="max-w-6xl mx-auto px-6 pt-2 pb-6">
                 {/* 모바일 광고 (lg 미만) */}
 
 
@@ -264,55 +278,55 @@ export default function TaxSavingSimulator() {
 
                             <div ref={chartRef} className="w-full h-[300px] lg:h-[400px]">
                                 {chartReady ? (
-                                        <AreaChart width={chartW} height={chartH} data={result.yearlyData} margin={{ top: 10, right: 0, bottom: 0, left: -20 }}>
-                                            <defs>
-                                                <linearGradient id="colorGeneral" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.5} />
-                                                    <stop offset="95%" stopColor="#94a3b8" stopOpacity={0.1} />
-                                                </linearGradient>
-                                                <linearGradient id="colorSaving" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.5} />
-                                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis
-                                                dataKey="year"
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                tickLine={false}
-                                                axisLine={false}
-                                                tickFormatter={(val) => `${val}년`}
-                                            />
-                                            <YAxis
-                                                tickFormatter={formatAxisY}
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                width={40}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <Tooltip content={<CustomTooltip />} />
-                                            <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                                    <AreaChart width={chartW} height={chartH} data={result.yearlyData} margin={{ top: 10, right: 0, bottom: 0, left: -20 }}>
+                                        <defs>
+                                            <linearGradient id="colorGeneral" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.5} />
+                                                <stop offset="95%" stopColor="#94a3b8" stopOpacity={0.1} />
+                                            </linearGradient>
+                                            <linearGradient id="colorSaving" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.5} />
+                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis
+                                            dataKey="year"
+                                            tick={{ fontSize: 10, fill: '#94a3b8' }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickFormatter={(val) => `${val}년`}
+                                        />
+                                        <YAxis
+                                            tickFormatter={formatAxisY}
+                                            tick={{ fontSize: 10, fill: '#94a3b8' }}
+                                            width={55}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
 
-                                            {/* 1. 절세 계좌 (파란색) - 더 높으므로 뒤에 배치 */}
-                                            <Area
-                                                type="monotone"
-                                                dataKey="amountSaving"
-                                                stroke="#3b82f6"
-                                                strokeWidth={2}
-                                                fill="url(#colorSaving)"
-                                                name="절세 계좌 (세후)"
-                                            />
+                                        {/* 1. 절세 계좌 (파란색) - 더 높으므로 뒤에 배치 */}
+                                        <Area
+                                            type="monotone"
+                                            dataKey="amountSaving"
+                                            stroke="#3b82f6"
+                                            strokeWidth={2}
+                                            fill="url(#colorSaving)"
+                                            name="절세 계좌 (세후)"
+                                        />
 
-                                            {/* 2. 일반 계좌 (회색) - 더 낮으므로 앞에 배치 */}
-                                            <Area
-                                                type="monotone"
-                                                dataKey="amountGeneral"
-                                                stroke="#94a3b8"
-                                                strokeWidth={2}
-                                                fill="url(#colorGeneral)"
-                                                name="일반 계좌 (세후)"
-                                            />
-                                        </AreaChart>
+                                        {/* 2. 일반 계좌 (회색) - 더 낮으므로 앞에 배치 */}
+                                        <Area
+                                            type="monotone"
+                                            dataKey="amountGeneral"
+                                            stroke="#94a3b8"
+                                            strokeWidth={2}
+                                            fill="url(#colorGeneral)"
+                                            name="일반 계좌 (세후)"
+                                        />
+                                    </AreaChart>
                                 ) : (
                                     <div className="w-full h-full bg-slate-50 rounded-lg animate-pulse" />
                                 )}

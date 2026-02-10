@@ -64,7 +64,7 @@ export default function AdBanner() {
     if (!isMounted) return null;
 
     return (
-        <div className="flex justify-center items-center my-6 overflow-hidden">
+        <div className="flex justify-center items-center mt-6 mb-3 overflow-hidden">
             <div
                 style={{
                     width: isDesktop ? '728px' : '300px',

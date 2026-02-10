@@ -107,10 +107,23 @@ export default function RetirementSimulator() {
     };
 
     // 축 포맷팅
+    // 축 포맷팅 (동적 단위)
     const formatAxisY = (value: number) => {
-        if (value >= 100000000) return `${(value / 100000000).toFixed(1)}억`;
-        if (value >= 10000) return `${Math.floor(value / 10000)}만`;
-        return `${value}`;
+        if (value === 0) return '0';
+
+        // 데이터의 최대값 확인 (동적 단위를 위해)
+        const maxBalance = Math.max(...result.data.map(d => d.balance));
+
+        // 1억 이상 -> 억 단위
+        if (maxBalance >= 100000000) {
+            return `${(value / 100000000).toFixed(1)}억`;
+        }
+        // 1천만원 이상 -> 천만 단위
+        if (maxBalance >= 10000000) {
+            return `${(value / 10000000).toFixed(0)}천만`;
+        }
+        // 그 외 -> 백만 단위
+        return `${(value / 1000000).toFixed(0)}백만`;
     };
 
 
@@ -173,7 +186,7 @@ export default function RetirementSimulator() {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <div className="max-w-6xl mx-auto px-6 py-6">
+            <div className="max-w-6xl mx-auto px-6 pt-2 pb-6">
                 {/* 모바일 광고 (lg 미만) */}
 
 
@@ -356,59 +369,59 @@ export default function RetirementSimulator() {
 
                             <div ref={chartRef} className="w-full h-[300px] lg:h-[400px]">
                                 {chartReady ? (
-                                        <ComposedChart width={chartW} height={chartH} data={result.data} margin={{ top: 10, right: 0, bottom: 0, left: -20 }}>
-                                            <defs>
-                                                <linearGradient id="colorSafe" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.2} />
-                                                </linearGradient>
-                                                <linearGradient id="colorInvest" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8} />
-                                                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.2} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis
-                                                dataKey="age"
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <YAxis
-                                                tickFormatter={formatAxisY}
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                width={40}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <Tooltip content={<CustomTooltip />} />
-                                            <ReferenceLine
-                                                x={ageRetire}
-                                                stroke="#94a3b8"
-                                                strokeDasharray="3 3"
-                                                label={{
-                                                    value: '은퇴',
-                                                    position: 'insideTopLeft',
-                                                    fill: '#64748b',
-                                                    fontSize: 10,
-                                                }}
-                                            />
-                                            <Area type="monotone" dataKey="safe" stackId="1" fill="url(#colorSafe)" stroke="none" />
-                                            <Area
-                                                type="monotone"
-                                                dataKey="invest"
-                                                stackId="1"
-                                                fill="url(#colorInvest)"
-                                                stroke="none"
-                                            />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="balance"
-                                                stroke="#475569"
-                                                strokeWidth={2}
-                                                dot={false}
-                                            />
-                                        </ComposedChart>
+                                    <ComposedChart width={chartW} height={chartH} data={result.data} margin={{ top: 10, right: 0, bottom: 0, left: -20 }}>
+                                        <defs>
+                                            <linearGradient id="colorSafe" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0.2} />
+                                            </linearGradient>
+                                            <linearGradient id="colorInvest" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.2} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis
+                                            dataKey="age"
+                                            tick={{ fontSize: 10, fill: '#94a3b8' }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            tickFormatter={formatAxisY}
+                                            tick={{ fontSize: 10, fill: '#94a3b8' }}
+                                            width={55}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <ReferenceLine
+                                            x={ageRetire}
+                                            stroke="#94a3b8"
+                                            strokeDasharray="3 3"
+                                            label={{
+                                                value: '은퇴',
+                                                position: 'insideTopLeft',
+                                                fill: '#64748b',
+                                                fontSize: 10,
+                                            }}
+                                        />
+                                        <Area type="monotone" dataKey="safe" stackId="1" fill="url(#colorSafe)" stroke="none" />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="invest"
+                                            stackId="1"
+                                            fill="url(#colorInvest)"
+                                            stroke="none"
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="balance"
+                                            stroke="#475569"
+                                            strokeWidth={2}
+                                            dot={false}
+                                        />
+                                    </ComposedChart>
                                 ) : (
                                     <div className="w-full h-full bg-slate-50 rounded-lg animate-pulse" />
                                 )}

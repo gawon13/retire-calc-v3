@@ -65,6 +65,8 @@ const InputField = ({
     );
 };
 
+
+
 export default function KidsInvestmentSimulator() {
 
     const [chartRef, chartReady, chartW, chartH] = useChartReady();
@@ -75,6 +77,9 @@ export default function KidsInvestmentSimulator() {
     const [initialAmount, setInitialAmount] = useState(2000); // 증여세 면제 한도 (2천만원)
     const [monthlyAmount, setMonthlyAmount] = useState(10);   // 월 10만원
     const [rate, setRate] = useState(8.0);              // 연 8% (장기 투자 가정)
+
+    // 상세 보기 토글
+    const [showDetail, setShowDetail] = useState(false);
 
     // 계산 로직 실행
     const result = useKidsCalc({
@@ -90,11 +95,16 @@ export default function KidsInvestmentSimulator() {
     const formatAgeBadge = (val: number) => `${val}세`;
     const formatRateBadge = (val: number) => `연 ${val}%`;
 
-    // 축 포맷팅
+    // 축 포맷팅 (동적 단위)
     const formatAxisY = (value: number) => {
+        if (value === 0) return '0';
+
+        // 1억 이상 -> 억 단위
         if (value >= 100000000) return `${(value / 100000000).toFixed(1)}억`;
-        if (value >= 10000) return `${Math.floor(value / 10000)}만`;
-        return `${value}`;
+        // 1천만원 이상 -> 천만 단위
+        if (value >= 10000000) return `${(value / 10000000).toFixed(0)}천만`;
+        // 그 외 -> 백만 단위
+        return `${(value / 1000000).toFixed(0)}백만`;
     };
 
     // 차트 툴팁
@@ -139,7 +149,7 @@ export default function KidsInvestmentSimulator() {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <div className="max-w-6xl mx-auto px-6 py-6">
+            <div className="max-w-6xl mx-auto px-6 pt-2 pb-6">
                 {/* 모바일 광고 (lg 미만) */}
 
 
@@ -166,10 +176,11 @@ export default function KidsInvestmentSimulator() {
 
                             <div className="grid grid-cols-2 gap-2 gap-y-4">
                                 <InputField
-                                    label="현재 나이"
+                                    label="자녀 나이"
                                     value={currentAge}
                                     onChange={setCurrentAge}
                                     unit="세"
+                                    min={0}
                                     max={30}
                                     formatBadge={formatAgeBadge}
                                 />
@@ -276,86 +287,133 @@ export default function KidsInvestmentSimulator() {
                             <div className="mb-4 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <TrendingUp className="text-blue-500" size={16} />
-                                    <h3 className="font-bold text-sm text-slate-800">투자 방식별 세후 자산 성장 (미국 직투 vs 연금저축)</h3>
+                                    <h3 className="font-bold text-sm text-slate-800">투자 방식별 세후 자산 성장 비교</h3>
                                 </div>
-                                <div className="text-xs text-slate-400">
-                                    *미국 직투: 매년 250만원 비과세 공제 후 재투자 가정
+                                <div className="text-xs text-slate-400 hidden sm:block">
+                                    *실선: 미국 직투 / 점선: 연금저축
                                 </div>
                             </div>
 
                             <div ref={chartRef} className="w-full h-[300px] lg:h-[400px]">
                                 {chartReady ? (
-                                        <LineChart
-                                            width={chartW} height={chartH}
-                                            data={result.yearlyData}
-                                            margin={{ top: 20, right: 30, bottom: 0, left: -20 }}
-                                        >
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis
-                                                dataKey="age"
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                tickLine={false}
-                                                axisLine={false}
-                                                tickFormatter={(val) => `${val}세`}
-                                            />
-                                            <YAxis
-                                                tickFormatter={formatAxisY}
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                width={40}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <Tooltip content={<CustomTooltip />} />
-                                            <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="amount"
-                                                stroke="#2563eb"
-                                                strokeWidth={2}
-                                                dot={false}
-                                                name="총 자산"
-                                            />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="totalInvested"
+                                    <LineChart
+                                        width={chartW} height={chartH}
+                                        data={result.yearlyData}
+                                        margin={{ top: 20, right: 30, bottom: 0, left: 10 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis
+                                            dataKey="age"
+                                            tick={{ fontSize: 10, fill: '#94a3b8' }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickFormatter={(val) => `${val}세`}
+                                        />
+                                        <YAxis
+                                            tickFormatter={formatAxisY}
+                                            tick={{ fontSize: 10, fill: '#94a3b8' }}
+                                            width={55}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="afterTaxUS"
+                                            stroke="#2563eb"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            name="미국 직투 (세후)"
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="afterTaxPension"
+                                            stroke="#9333ea"
+                                            strokeWidth={2}
+                                            strokeDasharray="5 5"
+                                            dot={false}
+                                            name="연금저축 (세후)"
+                                        />
+                                        {/* 주요 이벤트 마커 */}
+                                        {currentAge < 20 && targetAge >= 20 && (
+                                            <ReferenceLine
+                                                x={20}
                                                 stroke="#94a3b8"
-                                                strokeWidth={2}
-                                                strokeDasharray="5 5"
-                                                dot={false}
-                                                name="투자 원금"
+                                                strokeDasharray="3 3"
+                                                label={{
+                                                    value: '성인(20세)',
+                                                    position: 'insideTopLeft',
+                                                    fill: '#64748b',
+                                                    fontSize: 10,
+                                                }}
                                             />
-                                            {/* 주요 이벤트 마커 */}
-                                            {currentAge < 20 && targetAge >= 20 && (
-                                                <ReferenceLine
-                                                    x={20}
-                                                    stroke="#94a3b8"
-                                                    strokeDasharray="3 3"
-                                                    label={{
-                                                        value: '성인(20세)',
-                                                        position: 'insideTopLeft',
-                                                        fill: '#64748b',
-                                                        fontSize: 10,
-                                                    }}
-                                                />
-                                            )}
-                                            {currentAge < 30 && targetAge >= 30 && (
-                                                <ReferenceLine
-                                                    x={30}
-                                                    stroke="#94a3b8"
-                                                    strokeDasharray="3 3"
-                                                    label={{
-                                                        value: '독립(30세)',
-                                                        position: 'insideTopLeft',
-                                                        fill: '#64748b',
-                                                        fontSize: 10,
-                                                    }}
-                                                />
-                                            )}
-                                        </LineChart>
+                                        )}
+                                        {currentAge < 30 && targetAge >= 30 && (
+                                            <ReferenceLine
+                                                x={30}
+                                                stroke="#94a3b8"
+                                                strokeDasharray="3 3"
+                                                label={{
+                                                    value: '독립(30세)',
+                                                    position: 'insideTopLeft',
+                                                    fill: '#64748b',
+                                                    fontSize: 10,
+                                                }}
+                                            />
+                                        )}
+                                    </LineChart>
                                 ) : (
                                     <div className="w-full h-full bg-slate-50 rounded-lg animate-pulse" />
                                 )}
                             </div>
+                        </div>
+
+                        {/* 상세 보기 토글 영역 */}
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <button
+                                onClick={() => setShowDetail(!showDetail)}
+                                className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-sm font-bold text-slate-700"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <RefreshCw size={14} className="text-slate-400" />
+                                    연령별 자산 비교 상세보기
+                                </span>
+                                {showDetail ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            </button>
+
+                            {showDetail && (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-xs text-right border-t border-slate-100">
+                                        <thead className="bg-slate-50 text-slate-500 font-medium">
+                                            <tr>
+                                                <th className="px-4 py-3 text-center w-[15%]">나이</th>
+                                                <th className="px-4 py-3 text-blue-600 w-[30%]">미국 직투 (세후)</th>
+                                                <th className="px-4 py-3 text-purple-600 w-[30%]">연금저축 (세후)</th>
+                                                <th className="px-4 py-3 text-slate-700 w-[25%]">차이</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {result.yearlyData.map((data) => {
+                                                const diff = data.afterTaxUS - data.afterTaxPension;
+                                                const isUSBetter = diff > 0;
+                                                const diffColor = isUSBetter ? 'text-blue-600' : 'text-purple-600';
+
+                                                return (
+                                                    <tr key={data.age} className="hover:bg-slate-50 transition-colors">
+                                                        <td className="px-4 py-3 text-center font-medium text-slate-600">{data.age}세</td>
+                                                        <td className="px-4 py-3 font-mono text-slate-700">{formatCurrency(data.afterTaxUS)}</td>
+                                                        <td className="px-4 py-3 font-mono text-slate-700">{formatCurrency(data.afterTaxPension)}</td>
+                                                        <td className={`px-4 py-3 font-mono font-bold ${diffColor}`}>
+                                                            {formatCurrency(Math.abs(diff))}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </div>
                     </main>
                 </div >

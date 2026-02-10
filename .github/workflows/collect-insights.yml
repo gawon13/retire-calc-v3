@@ -1,0 +1,38 @@
+name: Collect Insights
+
+on:
+  schedule:
+    # 09:00 KST = 00:00 UTC
+    - cron: '0 0 * * *'
+    # 18:00 KST = 09:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run collector
+        env:
+          DATA_GO_KR_API_KEY: ${{ secrets.DATA_GO_KR_API_KEY }}
+        run: npx tsx scripts/collect-insights.ts
+
+      - name: Commit and push new articles
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/insights/
+          git diff --cached --quiet || git commit -m "chore: collect insights $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push

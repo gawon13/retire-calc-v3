@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback, RefObject } from 'react';
 
-export function useChartReady(): [RefObject<HTMLDivElement | null>, boolean, number, number] {
+export function useChartReady(): [RefObject<HTMLDivElement>, boolean, number, number] {
     const ref = useRef<HTMLDivElement>(null);
     const [size, setSize] = useState<{ w: number; h: number; ready: boolean }>({ w: 0, h: 0, ready: false });
 
