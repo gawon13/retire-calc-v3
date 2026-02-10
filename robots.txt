@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://retirecalc.co.kr/sitemap.xml
