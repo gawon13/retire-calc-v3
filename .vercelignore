@@ -1,0 +1,10 @@
+.github
+.git
+.vscode
+.gemini
+scripts
+test
+README.md
+task.md
+implementation_plan.md
+walkthrough.md
