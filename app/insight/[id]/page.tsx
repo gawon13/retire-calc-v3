@@ -82,6 +82,27 @@ export default function InsightDetailPage() {
         if (id) fetchArticle();
     }, [id]);
 
+    // 텍스트 내 URL을 클릭 가능한 링크로 변환
+    const renderTextWithLinks = (text: string) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const parts = text.split(urlRegex);
+        return parts.map((part, i) =>
+            urlRegex.test(part) ? (
+                <a
+                    key={i}
+                    href={part}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline break-all"
+                >
+                    {part}
+                </a>
+            ) : (
+                <span key={i}>{part}</span>
+            )
+        );
+    };
+
     const formatDate = (iso: string) => {
         return new Date(iso).toLocaleDateString('ko-KR', {
             year: 'numeric',
@@ -159,7 +180,7 @@ export default function InsightDetailPage() {
                                 핵심 요약
                             </h2>
                             <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                                {article.adminSummary}
+                                {renderTextWithLinks(article.adminSummary)}
                             </p>
                         </div>
                     </div>

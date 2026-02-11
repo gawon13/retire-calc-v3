@@ -85,9 +85,9 @@ export default function AdminPage() {
         if (!selected) return;
         setSaving(true);
 
-        // "#태그1 #태그2 #태그3" → ["태그1", "태그2", "태그3"]
+        // "#태그1 #태그2 #태그3" 또는 "#태그1, #태그2, #태그3" → ["태그1", "태그2", "태그3"]
         const parsedKeyPoints = keyPointsText
-            .split(/\s+/)
+            .split(/[\s,]+/)
             .map((t) => t.replace(/^#/, '').trim())
             .filter(Boolean);
 
@@ -282,7 +282,7 @@ export default function AdminPage() {
                                     placeholder="#세제개편 #연금저축 #ISA"
                                 />
                                 <p className="text-[10px] text-slate-400 mt-1">
-                                    #태그 형식으로 공백 구분하여 입력 (복사/붙여넣기 가능)
+                                    #태그 형식, 공백 또는 콤마로 구분 (복사/붙여넣기 가능)
                                 </p>
                             </div>
 
