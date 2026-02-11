@@ -9,9 +9,9 @@ import AdBanner from '@/components/AdBanner';
 export const metadata: Metadata = {
     title: '은퇴 계산기 | 복리, 절세, 자녀투자 수익 시뮬레이션',
     description: '은퇴 후 삶을 위한 복리 계산, 절세 전략, 자녀 투자 시뮬레이션을 한곳에서 확인하세요. 나스미디어 nap ssp 기반의 신뢰할 수 있는 데이터를 제공합니다.',
-    other: {
-        'google-adsense-account': 'ca-pub-6000593057898615',
-    },
+    // other: {
+    //     'google-adsense-account': 'ca-pub-6000593057898615',
+    // },
 };
 
 export default function RootLayout({
@@ -34,12 +34,14 @@ export default function RootLayout({
                         gtag('config', 'G-8FR7KVBVFM');
                     `}
                 </Script>
+                {/* 
                 <Script
                     async
                     src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6000593057898615"
                     crossOrigin="anonymous"
                     strategy="afterInteractive"
-                />
+                /> 
+                */}
                 <Header />
                 <SubNav />
                 <AdBanner />

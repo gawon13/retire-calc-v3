@@ -9,6 +9,7 @@ import { cleanupOldArticles } from './lib/cleanup';
 import { CollectedArticle } from './lib/types';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { put } from '@vercel/blob';
 
 async function main() {
     const contentDir = join(process.cwd(), 'content', 'insights');
@@ -76,7 +77,23 @@ async function main() {
             adminPublishedAt: null,
         };
 
+        // 로컬 파일 저장
         writeFileSync(join(contentDir, filename), JSON.stringify(article, null, 2), 'utf-8');
+
+        // Blob 업로드 (BLOB_READ_WRITE_TOKEN이 있을 때)
+        if (process.env.BLOB_READ_WRITE_TOKEN) {
+            try {
+                await put(`insights/${id}.json`, JSON.stringify(article, null, 2), {
+                    access: 'public',
+                    contentType: 'application/json',
+                    addRandomSuffix: false,
+                    allowOverwrite: true,
+                });
+            } catch (blobErr) {
+                console.error(`  [Blob upload failed] ${id}:`, blobErr);
+            }
+        }
+
         existingIds.add(id);
         newCount++;
         console.log(`  + [P${priority}] ${raw.source.toUpperCase()}: ${raw.title}`);

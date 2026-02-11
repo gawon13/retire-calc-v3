@@ -81,7 +81,7 @@ export default function AdminPage() {
         );
     };
 
-    const handleSave = async (publish: boolean) => {
+    const handleSave = async (action: 'draft' | 'publish' | 'unpublish') => {
         if (!selected) return;
         setSaving(true);
 
@@ -96,8 +96,10 @@ export default function AdminPage() {
             adminKeyPoints: parsedKeyPoints,
         };
 
-        if (publish) {
+        if (action === 'publish') {
             body.status = 'published';
+        } else if (action === 'unpublish') {
+            body.status = 'raw';
         }
 
         try {
@@ -112,10 +114,12 @@ export default function AdminPage() {
                 throw new Error(err.error || `HTTP ${res.status}`);
             }
 
-            setToast({
-                message: publish ? '게시 완료!' : '임시 저장 완료!',
-                type: 'success',
-            });
+            const messages = {
+                draft: '임시 저장 완료!',
+                publish: '게시 완료!',
+                unpublish: '게시 취소됨',
+            };
+            setToast({ message: messages[action], type: 'success' });
             setSelected(null);
             fetchArticles();
         } catch (err: any) {
@@ -230,7 +234,9 @@ export default function AdminPage() {
                     <div className="w-[420px] flex-none">
                         <div className="bg-white rounded-xl border border-slate-200 p-6 sticky top-4">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="font-bold text-slate-800">요약 작성</h2>
+                                <h2 className="font-bold text-slate-800">
+                                    {selected.status === 'published' ? '게시글 수정' : '요약 작성'}
+                                </h2>
                                 <button
                                     onClick={() => setSelected(null)}
                                     className="text-slate-400 hover:text-slate-600 text-lg"
@@ -287,22 +293,45 @@ export default function AdminPage() {
                             </div>
 
                             {/* 버튼 */}
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => handleSave(false)}
-                                    disabled={saving}
-                                    className="flex-1 px-4 py-2 text-sm font-medium bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 disabled:opacity-50 transition-colors"
-                                >
-                                    임시 저장
-                                </button>
-                                <button
-                                    onClick={() => handleSave(true)}
-                                    disabled={saving || !summary.trim()}
-                                    className="flex-1 px-4 py-2 text-sm font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                                >
-                                    게시하기
-                                </button>
-                            </div>
+                            {selected.status === 'published' ? (
+                                <div className="flex flex-col gap-2">
+                                    <button
+                                        onClick={() => handleSave('publish')}
+                                        disabled={saving || !summary.trim()}
+                                        className="w-full px-4 py-2 text-sm font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                    >
+                                        수정 반영
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (confirm('게시를 취소하시겠습니까?\n인사이트 페이지에서 더 이상 보이지 않습니다.')) {
+                                                handleSave('unpublish');
+                                            }
+                                        }}
+                                        disabled={saving}
+                                        className="w-full px-4 py-2 text-sm font-medium bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+                                    >
+                                        게시 취소
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleSave('draft')}
+                                        disabled={saving}
+                                        className="flex-1 px-4 py-2 text-sm font-medium bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 disabled:opacity-50 transition-colors"
+                                    >
+                                        임시 저장
+                                    </button>
+                                    <button
+                                        onClick={() => handleSave('publish')}
+                                        disabled={saving || !summary.trim()}
+                                        className="flex-1 px-4 py-2 text-sm font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                    >
+                                        게시하기
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

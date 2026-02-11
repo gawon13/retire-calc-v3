@@ -9,10 +9,8 @@
   "rawSummary": "",
   "publishedAt": "2026-01-22T15:00:00.000Z",
   "collectedAt": "2026-02-10T13:12:06.041Z",
-  "status": "published",
-  "adminSummary": "prod test",
-  "adminKeyPoints": [
-    "t1"
-  ],
-  "adminPublishedAt": "2026-02-11T01:21:49.366Z"
+  "status": "raw",
+  "adminSummary": null,
+  "adminKeyPoints": null,
+  "adminPublishedAt": null
 }

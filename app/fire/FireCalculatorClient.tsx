@@ -5,7 +5,7 @@ import { Flame, Wallet, TrendingUp, RefreshCw, ChevronUp, ChevronDown, Info } fr
 import { useFireCalc } from '@/hooks/useFireCalc';
 import { useChartReady } from '@/hooks/useChartReady';
 import { formatCurrency } from '@/utils/formatCurrency';
-import AdBanner from '@/components/AdBanner'; // Import AdBanner
+
 
 import {
     ComposedChart,
@@ -196,10 +196,7 @@ export default function FireCalculatorClient() {
         <div className="min-h-screen bg-slate-50">
             <div className="max-w-6xl mx-auto px-6 pt-2 pb-6">
 
-                {/* Mobile Ad (Hidden on Desktop) */}
-                <div className="lg:hidden mb-6">
-                    <AdBanner />
-                </div>
+
 
                 {/* Main Layout */}
                 <div className="flex flex-col lg:flex-row gap-6">
