@@ -12,6 +12,7 @@ export default function SubNav() {
         { label: '절세 계산기', mobileLabel: '절세', path: '/tax-save' },
         { label: '자녀계좌 계산기', mobileLabel: '자녀', path: '/kids-invest' },
         { label: 'FIRE 계산기', mobileLabel: 'FIRE', path: '/fire' },
+        { label: '건강보험료 계산기', mobileLabel: '건보', path: '/health' },
     ];
 
     const isActive = (path: string) => {
