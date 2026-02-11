@@ -7,8 +7,20 @@ import Footer from '@/components/common/Footer';
 import AdBanner from '@/components/AdBanner';
 
 export const metadata: Metadata = {
-    title: '은퇴 계산기 | 복리, 절세, 자녀투자 수익 시뮬레이션',
-    description: '은퇴 후 삶을 위한 복리 계산, 절세 전략, 자녀 투자 시뮬레이션을 한곳에서 확인하세요. 나스미디어 nap ssp 기반의 신뢰할 수 있는 데이터를 제공합니다.',
+    title: '은퇴 자산 계산기 | 은퇴·복리·절세·자녀계좌·FIRE 계산기',
+    description: '은퇴자금, 복리 수익, 절세 효과, 자녀계좌, FIRE 목표까지 한 번에 계산합니다. 간단 입력으로 은퇴 시점 자산과 월 부족 생활비를 확인할 수 있습니다.',
+    openGraph: {
+        type: 'website',
+        siteName: '은퇴 자산 계산기',
+        images: [
+            {
+                url: '/logo.png',
+                width: 1200,
+                height: 630,
+                type: 'image/png',
+            },
+        ],
+    },
     // other: {
     //     'google-adsense-account': 'ca-pub-6000593057898615',
     // },

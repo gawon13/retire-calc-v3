@@ -13,7 +13,7 @@ export default function Footer() {
                     </Link>
                 </div>
                 <p className="text-xs text-slate-400">
-                    © 2026 은퇴 계산기. All rights reserved.
+                    © 2026 은퇴 자산 계산기. All rights reserved.
                 </p>
                 <p className="text-[10px] text-slate-300 mt-2">
                     본 서비스는 모의 계산 결과를 제공하며, 실제 투자 결과와 다를 수 있습니다.

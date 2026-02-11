@@ -14,7 +14,7 @@ export default function Header() {
     };
 
     const mainMenuItems = [
-        { label: '시뮬레이터', path: '/' },
+        { label: '계산기', path: '/' },
         { label: '인사이트', path: '/insight' },
         { label: '소개', path: '/about' },
     ];
@@ -54,7 +54,7 @@ export default function Header() {
                             </svg>
                         </div>
                         <span className="text-xl font-bold text-gray-900">
-                            은퇴 & 자산 시뮬레이터
+                            은퇴 자산 계산기
                         </span>
                     </Link>
 

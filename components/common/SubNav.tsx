@@ -7,11 +7,11 @@ export default function SubNav() {
     const pathname = usePathname();
 
     const simulatorMenuItems = [
-        { label: '은퇴 시뮬레이터', mobileLabel: '은퇴', path: '/' },
-        { label: '복리 시뮬레이터', mobileLabel: '복리', path: '/compound' },
-        { label: '절세 시뮬레이터', mobileLabel: '절세', path: '/tax-save' },
-        { label: '자녀투자 시뮬레이터', mobileLabel: '자녀', path: '/kids-invest' },
-        { label: '파이어족 계산기', mobileLabel: '파이어', path: '/fire' },
+        { label: '은퇴자금 계산기', mobileLabel: '은퇴', path: '/' },
+        { label: '복리 계산기', mobileLabel: '복리', path: '/compound' },
+        { label: '절세 계산기', mobileLabel: '절세', path: '/tax-save' },
+        { label: '자녀계좌 계산기', mobileLabel: '자녀', path: '/kids-invest' },
+        { label: 'FIRE 계산기', mobileLabel: 'FIRE', path: '/fire' },
     ];
 
     const isActive = (path: string) => {

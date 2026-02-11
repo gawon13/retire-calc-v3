@@ -1,21 +1,24 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: '서비스 소개 | 은퇴 자산 계산기 개발 스토리',
+    description: '복잡한 은퇴 준비를 더 쉽고 명확하게. 누구나 자신의 미래를 직접 설계할 수 있도록 돕는 은퇴 자산 계산기 프로젝트를 소개합니다.',
+    openGraph: {
+        title: '서비스 소개 | 은퇴 자산 계산기 개발 스토리',
+        description: '복잡한 은퇴 준비를 더 쉽고 명확하게. 누구나 자신의 미래를 직접 설계할 수 있도록 돕는 은퇴 자산 계산기 프로젝트를 소개합니다.',
+    },
+};
+
 export default function AboutPage() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-12">
             <div className="bg-white rounded-lg shadow-md p-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-6">
-                    소개
-                </h1>
+
 
                 <div className="prose prose-lg max-w-none">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">
                         더 나은 미래를 설계하는 뼈때리는 금융 도구
                     </h2>
-
-                    <p className="text-gray-700 mb-6">
-                        <strong>은퇴 & 자산 시뮬레이터</strong>는 당신의 재정적 미래를 계획하고
-                        시뮬레이션할 수 있는 강력한 도구입니다. 복잡한 금융 계산을 쉽게 만들어,
-                        누구나 자신의 은퇴 계획과 투자 전략을 세울 수 있도록 돕습니다.
-                    </p>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-3">
                         🎯 우리의 미션
@@ -27,14 +30,14 @@ export default function AboutPage() {
                     </p>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-3">
-                        💡 제공하는 시뮬레이터
+                        💡 제공하는 계산기
                     </h3>
                     <ul className="list-disc list-inside text-gray-700 space-y-2 mb-6">
-                        <li><strong>은퇴 시뮬레이터:</strong> 은퇴 후 필요한 자산과 현재 준비 상황 분석</li>
-                        <li><strong>복리 시뮬레이터:</strong> 장기 투자의 복리 효과 계산</li>
-                        <li><strong>절세 시뮬레이터:</strong> 세금 최적화 전략 수립</li>
-                        <li><strong>자녀투자 시뮬레이터:</strong> 자녀를 위한 장기 투자 계획</li>
-                        <li><strong>행운 시뮬레이터:</strong> 로또 등 확률 기반 투자의 기대값 분석</li>
+                        <li><strong>은퇴자금 계산기:</strong> 은퇴 후 필요한 자산과 현재 준비 상황 분석</li>
+                        <li><strong>복리 계산기:</strong> 장기 투자의 복리 효과 계산</li>
+                        <li><strong>절세 계산기:</strong> 세금 최적화 전략 수립</li>
+                        <li><strong>자녀계좌 계산기:</strong> 자녀를 위한 장기 투자 계획</li>
+                        <li><strong>FIRE 계산기:</strong> 조기 은퇴(FIRE)를 위한 4% 룰 계산</li>
                     </ul>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-3">

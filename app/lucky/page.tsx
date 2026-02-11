@@ -106,7 +106,7 @@ export default function LuckyPage() {
                                     <div className="p-1.5 rounded-lg bg-blue-50 text-blue-500">
                                         <Clover size={16} strokeWidth={2} />
                                     </div>
-                                    <h3 className="text-sm font-bold text-slate-800">로또 시뮬레이터</h3>
+                                    <h3 className="text-sm font-bold text-slate-800">로또 계산기</h3>
                                 </div>
                                 <button
                                     onClick={clearInputs}

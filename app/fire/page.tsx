@@ -2,8 +2,12 @@ import { Metadata } from 'next';
 import FireCalculatorClient from './FireCalculatorClient';
 
 export const metadata: Metadata = {
-    title: '파이어족 계산기 | 조기 은퇴 자산 및 달성 시기 시뮬레이션',
-    description: '파이어족(FIRE)을 위한 은퇴 자산 계산기입니다. 4% 룰을 기반으로 목표 자산(FI Number)과 조기 은퇴 가능 시기를 계산해 드립니다.',
+    title: 'FIRE 계산기 | 조기 은퇴 자금·4% 룰 계산기',
+    description: '연간 생활비와 4% 룰을 기반으로 FIRE(Financial Independence, Retire Early) 달성 자금과 시기를 계산합니다.',
+    openGraph: {
+        title: 'FIRE 계산기 | 조기 은퇴 자금·4% 룰 계산기',
+        description: '연간 생활비와 4% 룰을 기반으로 FIRE(Financial Independence, Retire Early) 달성 자금과 시기를 계산합니다.',
+    },
 };
 
 export default function FireCalculatorPage() {
