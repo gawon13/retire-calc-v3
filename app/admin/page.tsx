@@ -70,7 +70,12 @@ export default function AdminPage() {
 
     const selectArticle = (article: Article) => {
         setSelected(article);
-        setSummary(article.adminSummary || '');
+        // 기존 요약이 있으면 그대로 사용, 없으면 원문 링크를 포함한 초기값
+        if (article.adminSummary) {
+            setSummary(article.adminSummary);
+        } else {
+            setSummary(`\n\n원문: ${article.sourceUrl}`);
+        }
         setKeyPointsText(
             (article.adminKeyPoints || []).map((p) => `#${p}`).join(' ')
         );
