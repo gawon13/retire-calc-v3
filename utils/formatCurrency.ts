@@ -8,7 +8,7 @@ export function formatCurrency(amount: number): string {
     if (amount >= 100000000) {
         // 1억 이상
         const eok = amount / 100000000;
-        return `${eok.toFixed(1)}억원`;
+        return `${eok.toFixed(2)}억원`;
     } else if (amount >= 10000) {
         // 1만 이상
         const man = Math.floor(amount / 10000);

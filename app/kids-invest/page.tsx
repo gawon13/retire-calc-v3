@@ -118,7 +118,7 @@ export default function KidsInvestmentSimulator() {
         if (value === 0) return '0';
 
         // 1억 이상 -> 억 단위
-        if (value >= 100000000) return `${(value / 100000000).toFixed(1)}억`;
+        if (value >= 100000000) return `${(value / 100000000).toFixed(2)}억`;
         // 1천만원 이상 -> 천만 단위
         if (value >= 10000000) return `${(value / 10000000).toFixed(0)}천만`;
         // 그 외 -> 백만 단위

@@ -142,7 +142,7 @@ export default function RetirementSimulator() {
 
         // 1억 이상 -> 억 단위
         if (maxBalance >= 100000000) {
-            return `${(value / 100000000).toFixed(1)}억`;
+            return `${(value / 100000000).toFixed(2)}억`;
         }
         // 1천만원 이상 -> 천만 단위
         if (maxBalance >= 10000000) {

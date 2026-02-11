@@ -50,9 +50,10 @@ export default function AdminPage() {
     const [filter, setFilter] = useState<'all' | 'raw' | 'published'>('all');
     const [selected, setSelected] = useState<Article | null>(null);
     const [summary, setSummary] = useState('');
-    const [keyPoints, setKeyPoints] = useState(['', '', '']);
+    const [keyPointsText, setKeyPointsText] = useState('');
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     const fetchArticles = useCallback(async () => {
         setLoading(true);
@@ -70,31 +71,57 @@ export default function AdminPage() {
     const selectArticle = (article: Article) => {
         setSelected(article);
         setSummary(article.adminSummary || '');
-        setKeyPoints(article.adminKeyPoints || ['', '', '']);
+        setKeyPointsText(
+            (article.adminKeyPoints || []).map((p) => `#${p}`).join(' ')
+        );
     };
 
     const handleSave = async (publish: boolean) => {
         if (!selected) return;
         setSaving(true);
 
+        // "#태그1 #태그2 #태그3" → ["태그1", "태그2", "태그3"]
+        const parsedKeyPoints = keyPointsText
+            .split(/\s+/)
+            .map((t) => t.replace(/^#/, '').trim())
+            .filter(Boolean);
+
         const body: any = {
             adminSummary: summary,
-            adminKeyPoints: keyPoints.filter((p) => p.trim()),
+            adminKeyPoints: parsedKeyPoints,
         };
 
         if (publish) {
             body.status = 'published';
         }
 
-        await fetch(`/api/insights/${selected.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-        });
+        try {
+            const res = await fetch(`/api/insights/${selected.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
 
-        setSaving(false);
-        setSelected(null);
-        fetchArticles();
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `HTTP ${res.status}`);
+            }
+
+            setToast({
+                message: publish ? '게시 완료!' : '임시 저장 완료!',
+                type: 'success',
+            });
+            setSelected(null);
+            fetchArticles();
+        } catch (err: any) {
+            setToast({
+                message: `저장 실패: ${err.message || '알 수 없는 오류'}`,
+                type: 'error',
+            });
+        } finally {
+            setSaving(false);
+            setTimeout(() => setToast(null), 3000);
+        }
     };
 
     const formatDate = (iso: string) => {
@@ -107,6 +134,19 @@ export default function AdminPage() {
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">
+            {/* 토스트 알림 */}
+            {toast && (
+                <div
+                    className={`fixed top-20 right-6 z-50 px-5 py-3 rounded-lg shadow-lg text-sm font-medium transition-all ${
+                        toast.type === 'success'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-red-600 text-white'
+                    }`}
+                >
+                    {toast.message}
+                </div>
+            )}
+
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900">📰 인사이트 관리</h1>
                 <p className="text-sm text-slate-500 mt-1">수집된 기사를 검토하고 요약을 작성하세요</p>
@@ -225,24 +265,20 @@ export default function AdminPage() {
                                 </div>
                             </div>
 
-                            {/* 핵심 포인트 */}
+                            {/* 핵심 태그 */}
                             <div className="mb-6">
                                 <label className="block text-xs font-bold text-slate-600 mb-1">
-                                    핵심 포인트 (최대 3개)
+                                    핵심 태그
                                 </label>
-                                {keyPoints.map((point, i) => (
-                                    <input
-                                        key={i}
-                                        value={point}
-                                        onChange={(e) => {
-                                            const next = [...keyPoints];
-                                            next[i] = e.target.value;
-                                            setKeyPoints(next);
-                                        }}
-                                        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder={`포인트 ${i + 1}`}
-                                    />
-                                ))}
+                                <input
+                                    value={keyPointsText}
+                                    onChange={(e) => setKeyPointsText(e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="#세제개편 #연금저축 #ISA"
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1">
+                                    #태그 형식으로 공백 구분하여 입력 (복사/붙여넣기 가능)
+                                </p>
                             </div>
 
                             {/* 버튼 */}

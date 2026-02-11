@@ -11,6 +11,7 @@ export default function SubNav() {
         { label: '복리 시뮬레이터', mobileLabel: '복리', path: '/compound' },
         { label: '절세 시뮬레이터', mobileLabel: '절세', path: '/tax-save' },
         { label: '자녀투자 시뮬레이터', mobileLabel: '자녀', path: '/kids-invest' },
+        { label: '파이어족 계산기', mobileLabel: '파이어', path: '/fire' },
     ];
 
     const isActive = (path: string) => {
