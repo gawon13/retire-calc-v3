@@ -3,16 +3,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { CALCULATORS, OTHER_MENU } from '../../common/constants/navigation';
 
+/**
+ * 전역 헤더 컴포넌트
+ * 로고, 메인 메뉴(데스크탑/모바일), 햄버거 메뉴 포함
+ */
 export default function Header() {
     const pathname = usePathname();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false); // 모바일 메뉴 개폐 상태
 
+    // 현재 경로가 활성화된 메뉴인지 확인하는 함수
     const isActive = (path: string) => {
         if (path === '/') return pathname === '/';
         return pathname.startsWith(path);
     };
 
+    // 상단 GNB 메뉴 항목 정의
     const mainMenuItems = [
         { label: '계산기', path: '/' },
         { label: '인사이트', path: '/insight' },
@@ -21,10 +28,10 @@ export default function Header() {
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-            {/* 1단 네비게이션 */}
+            {/* 1단 네비게이션 컨테이너 */}
             <div className="max-w-6xl mx-auto px-6">
                 <div className="flex justify-between items-center h-16">
-                    {/* 로고 */}
+                    {/* 서비스 로고 영역 */}
                     <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="bg-slate-900 text-white p-1.5 rounded-lg">
                             <svg
@@ -47,10 +54,6 @@ export default function Header() {
                                 <path d="M12 18h6a2 2 0 0 1 2 2v1" />
                                 <path d="M12 8h8" />
                                 <path d="M16 8V5a2 2 0 0 1 2-2" />
-                                <circle cx="16" cy="13" r=".5" />
-                                <circle cx="18" cy="3" r=".5" />
-                                <circle cx="20" cy="21" r=".5" />
-                                <circle cx="20" cy="8" r=".5" />
                             </svg>
                         </div>
                         <span className="text-xl font-bold text-gray-900">
@@ -58,7 +61,7 @@ export default function Header() {
                         </span>
                     </Link>
 
-                    {/* 데스크탑 메뉴 */}
+                    {/* 데스크탑 전용 네비게이션 메뉴 */}
                     <nav className="hidden md:flex space-x-8">
                         {mainMenuItems.map((item) => (
                             <Link
@@ -74,7 +77,7 @@ export default function Header() {
                         ))}
                     </nav>
 
-                    {/* 모바일 햄버거 메뉴 */}
+                    {/* 모바일 햄버거 메뉴 버튼 */}
                     <button
                         className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -105,21 +108,95 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* 모바일 메뉴 드롭다운 */}
+            {/* 모바일 전용 메뉴 드롭다운 (상태에 따라 노출) */}
             {isMenuOpen && (
-                <div className="md:hidden border-t border-gray-200">
-                    <div className="px-2 pt-2 pb-3 space-y-1">
-                        {mainMenuItems.map((item) => (
+                <div className="md:hidden border-t border-gray-200 bg-white shadow-xl max-h-[80vh] overflow-y-auto">
+                    {/* 계산기 도구 그룹 */}
+                    <div className="text-xs text-gray-400 font-semibold px-3 pt-4 pb-1">
+                        [계산기 도구]
+                    </div>
+                    <div className="px-2 pb-2 space-y-1">
+                        {CALCULATORS.map((item) => (
                             <Link
-                                key={item.path}
-                                href={item.path}
-                                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(item.path)
+                                key={item.href}
+                                href={item.href}
+                                className={`block px-3 py-2 rounded-md text-base font-medium flex items-center justify-between ${isActive(item.href)
+                                    ? 'text-blue-600 bg-blue-50'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                onClick={(e) => {
+                                    if (item.href === '/dividend') {
+                                        e.preventDefault();
+                                        alert('준비 중인 기능입니다.');
+                                        return;
+                                    }
+                                    setIsMenuOpen(false);
+                                }}
+                            >
+                                <span>{item.name}</span>
+                                {item.isNew && (
+                                    <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full">NEW</span>
+                                )}
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* 인사이트 그룹 */}
+                    <div className="text-xs text-gray-400 font-semibold px-3 pt-4 pb-1">
+                        [인사이트]
+                    </div>
+                    <div className="px-2 pb-2 space-y-1">
+                        {OTHER_MENU.filter(item => item.name === '인사이트').map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(item.href)
                                     ? 'text-blue-600 bg-blue-50'
                                     : 'text-gray-700 hover:bg-gray-50'
                                     }`}
                                 onClick={() => setIsMenuOpen(false)}
                             >
-                                {item.label}
+                                {item.name}
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* 소개 그룹 */}
+                    <div className="text-xs text-gray-400 font-semibold px-3 pt-4 pb-1">
+                        [소개]
+                    </div>
+                    <div className="px-2 pb-2 space-y-1 border-b border-gray-100 mb-2">
+                        {OTHER_MENU.filter(item => item.name === '소개').map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(item.href)
+                                    ? 'text-blue-600 bg-blue-50'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                {item.name}
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* 이용약관 및 개인정보처리방침 */}
+                    <div className="text-xs text-gray-400 font-semibold px-3 pt-4 pb-1">
+                        [약관 및 정책]
+                    </div>
+                    <div className="px-2 pb-6 space-y-1">
+                        {OTHER_MENU.filter(item => ['이용약관', '개인정보처리방침'].includes(item.name)).map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(item.href)
+                                    ? 'text-blue-600 bg-blue-50'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                {item.name}
                             </Link>
                         ))}
                     </div>

@@ -1,25 +1,34 @@
 import { useMemo } from 'react';
 
+/**
+ * 차트 시각화를 위한 데이터 포인트 인터페이스
+ */
 export interface FireDataPoint {
-    monthIndex: number; // 0, 1, 2...
-    year: number;
-    month: number;
-    age: number; // currentAge + floor(monthIndex / 12)
-    assets: number;
-    fiNumber: number;
-    isAchieved: boolean;
+    monthIndex: number;  // 시뮬레이션 시작 후 경과 개월수
+    year: number;        // 년
+    month: number;       // 월
+    age: number;         // 시뮬레이션 시점의 예상 나이
+    assets: number;      // 예상 순자산 (원)
+    fiNumber: number;    // 목표 FIRE 자산 (원)
+    isAchieved: boolean; // 목표 달성 여부
 }
 
+/**
+ * FIRE 계산기 입력 속성 인터페이스
+ */
 export interface UseFireCalcProps {
-    monthlyIncome: number; // Man-won unit
-    monthlyExpense: number; // Man-won unit
-    currentAssets: number; // Man-won unit
-    expectedReturn: number; // Annual return rate in %
-    targetRetireMonthly: number; // Man-won unit
-    currentAge?: number; // Update: User input
-    withdrawalRate?: number; // Update: User input, default 4%
+    monthlyIncome: number;      // 월 소득 (만원)
+    monthlyExpense: number;     // 월 소비 (만원)
+    currentAssets: number;      // 현재 순자산 (만원)
+    expectedReturn: number;     // 연 예상 투자 수익률 (%)
+    targetRetireMonthly: number; // 은퇴 후 희망 월 생활비 (만원)
+    currentAge?: number;        // 현재 나이
+    withdrawalRate?: number;    // 안전 인출률 (%), 기본값 4%
 }
 
+/**
+ * FIRE(Financial Independence, Retire Early) 목표 달성 시점 계산 커스텀 훅
+ */
 export const useFireCalc = ({
     monthlyIncome,
     monthlyExpense,
@@ -31,31 +40,30 @@ export const useFireCalc = ({
 }: UseFireCalcProps) => {
 
     return useMemo(() => {
-        // Convert inputs to raw Won (x10000)
+        // 만원 단위를 원 단위로 변환해 정확도 계산
         const incomeRaw = monthlyIncome * 10000;
         const expenseRaw = monthlyExpense * 10000;
         const assetsRaw = currentAssets * 10000;
         const targetRaw = targetRetireMonthly * 10000;
 
-        // 1. Basic Calculations
+        // 1. 기초 계산
+        // 월 저축 가능 금액 및 저축률 산출
         const monthlySavings = Math.max(0, incomeRaw - expenseRaw);
         const savingsRate = incomeRaw > 0 ? (monthlySavings / incomeRaw) * 100 : 0;
 
-        // FI Number
-        // Formula: Annual Expense / Withdrawal Rate
-        // If Withdrawal Rate is 4%, it is * 25.
-        // If Withdrawal Rate is 3%, it is * 33.33...
+        // FI Number (목표 은퇴 자산) 계산
+        // 공식: 연간 목표 생활비 / 안전 인출률
+        // 예: 인출률 4% 시 연 생활비의 25배, 3% 시 약 33배 필요
         const annualRetireExpense = targetRaw * 12;
         const safeWithdrawalRate = withdrawalRate / 100;
         const fiNumber = safeWithdrawalRate > 0 ? annualRetireExpense / safeWithdrawalRate : 0;
 
-        // 2. Projection (Real Value / Inflation Adjusted)
-        // Assumption: "Assets are Present Value" & "Expenses are Present Value"
-        // To keep everything in Present Value, we use "Real Return Rate".
-        // Real Return = (1 + Nominal Return) / (1 + Inflation) - 1
-        // Inflation is fixed at 2.5%
+        // 2. 자산 성장 시뮬레이션 (물가상승률 반영한 실질 수익률 사용)
+        // 자산과 비용 모두 현재가치(Present Value) 기준으로 시뮬레이션하기 위해
+        // '실질 수익률(Real Return Rate)'을 적용합니다.
+        // 실질 수익률 = (1 + 명목 수익률) / (1 + 물가상승률) - 1
 
-        const inflationRate = 0.025;
+        const inflationRate = 0.025; // 고정 인플레이션 2.5% 가정
         const nominalReturnRate = expectedReturn / 100;
         const realReturnRate = (1 + nominalReturnRate) / (1 + inflationRate) - 1;
         const monthlyRealReturn = realReturnRate / 12;
@@ -67,29 +75,26 @@ export const useFireCalc = ({
 
         const now = new Date();
         const startYear = now.getFullYear();
-        const startMonth = now.getMonth() + 1; // 1-12
+        const startMonth = now.getMonth() + 1;
 
-        // Max simulation months (e.g. 100 years = 1200 months)
+        // 최대 시뮬레이션 기간 설정 (최대 100년 = 1200개월)
         const MAX_MONTHS = 1200;
 
-        // Simulation Loop
+        // 월별 시뮬레이션 루프
         for (let i = 0; i < MAX_MONTHS; i++) {
-            // Calculate date
             const totalMonths = (startMonth - 1) + i;
             const year = startYear + Math.floor(totalMonths / 12);
             const month = (totalMonths % 12) + 1;
             const age = currentAge + Math.floor(i / 12);
 
-            // Record data: Start of simulation, Start of each year, and the exact achievement month.
+            // 데이터 기록 시점: 시작 시점, 매년 초, 그리고 목표 달성 시점
             const isStartOfYear = month === 1;
             const isStartOfSim = i === 0;
 
-            // Check achievement
-
-            // Check if achieved at START (or current state)
+            // 목표 달성 여부 확인
             if (achievedMonthIndex === -1 && currentBalance >= fiNumber) {
                 achievedMonthIndex = i;
-                // Make sure we record this specific month
+                // 달성 시점의 데이터를 명시적으로 기록
                 outputData.push({
                     monthIndex: i,
                     year,
@@ -100,15 +105,13 @@ export const useFireCalc = ({
                     isAchieved: true
                 });
             } else if (achievedMonthIndex !== -1) {
-                // Already achieved
-
-                // Stop if we have gone 20 years past achievement
-                if ((i - achievedMonthIndex) >= 240) { // 20 years * 12 months
+                // 이미 달성한 경우, 시각화를 위해 달성 후 20년까지만 더 시뮬레이션 후 종료
+                if ((i - achievedMonthIndex) >= 240) {
                     break;
                 }
             }
 
-            // Record regular data points (Yearly)
+            // 정기적인 차트 데이터 포인트 기록 (연 단위)
             const lastPoint = outputData[outputData.length - 1];
             const isDuplicate = lastPoint && lastPoint.monthIndex === i;
 
@@ -120,27 +123,27 @@ export const useFireCalc = ({
                     age,
                     assets: Math.round(currentBalance),
                     fiNumber: Math.round(fiNumber),
-                    // If achieved index is set and it is <= current index, then it is achieved
                     isAchieved: achievedMonthIndex !== -1 && achievedMonthIndex <= i
                 });
             }
 
-            // Compound interest + Savings
+            // 복리 수익 적용 및 저축액 합산
             const investmentReturn = currentBalance * monthlyRealReturn;
             currentBalance += investmentReturn + monthlySavings;
         }
 
-        // 3. Result formatting
+        // 3. 결과 포맷팅
         let timeToFire = { years: 0, months: 0 };
         let fireDateObj = null;
 
         if (achievedMonthIndex !== -1) {
+            // 달성까지 걸리는 시간 계산
             timeToFire = {
                 years: Math.floor(achievedMonthIndex / 12),
                 months: achievedMonthIndex % 12
             };
 
-            // Calculate exact date
+            // 예상 달성 날짜 계산
             const d = new Date();
             d.setMonth(d.getMonth() + achievedMonthIndex);
             fireDateObj = {
@@ -150,14 +153,14 @@ export const useFireCalc = ({
         }
 
         return {
-            monthlySavings, // In Won
-            savingsRate,
-            fiNumber,       // In Won
-            data: outputData, // In Won
-            timeToFire,
-            fireDate: fireDateObj,
-            isPossible: achievedMonthIndex !== -1,
-            achievedYear: fireDateObj?.year // For chart reference line
+            monthlySavings,    // 월 저축 가능액 (원)
+            savingsRate,       // 저축률 (%)
+            fiNumber,          // 목표 FIRE 자산 (원)
+            data: outputData,  // 시뮬레이션 기반 차트 데이터
+            timeToFire,        // 달성까지 소요 시간
+            fireDate: fireDateObj, // 예상 달성 일자
+            isPossible: achievedMonthIndex !== -1, // 달성 가능 여부
+            achievedYear: fireDateObj?.year        // 달성 연도 (차트 참조선용)
         };
 
     }, [monthlyIncome, monthlyExpense, currentAssets, expectedReturn, targetRetireMonthly, currentAge, withdrawalRate]);
