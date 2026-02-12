@@ -48,12 +48,6 @@ export default function SubNav() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                onClick={(e) => {
-                                    if (item.href === '/dividend') {
-                                        e.preventDefault();
-                                        alert('준비 중인 기능입니다.');
-                                    }
-                                }}
                                 className={`whitespace-nowrap px-3 py-2 text-sm font-medium transition-colors border-b-2 ${isActive(item.href)
                                     ? 'text-blue-600 font-bold border-blue-600'
                                     : 'text-gray-700 hover:text-blue-600 border-transparent'
@@ -73,17 +67,15 @@ export default function SubNav() {
             <div className="md:hidden w-full overflow-hidden">
                 {/* 1행: 기본 메뉴 4개 + 더보기 버튼 (h-12로 슬림화) */}
                 <div className="grid grid-cols-5 items-center h-12 border-b border-gray-100">
-                    {mainCalculators.map((item) => {
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={`flex flex-col items-center justify-center h-full transition-colors ${isActive(item.href) ? 'text-blue-600 font-bold' : 'text-gray-500'}`}
-                            >
-                                <span className="text-xs">{item.name.split(' ')[0]}</span>
-                            </Link>
-                        );
-                    })}
+                    {mainCalculators.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`flex flex-col items-center justify-center h-full transition-colors ${isActive(item.href) ? 'text-blue-600 font-bold' : 'text-gray-500'}`}
+                        >
+                            <span className="text-[10px] sm:text-xs text-center leading-tight px-0.5">{item.name}</span>
+                        </Link>
+                    ))}
 
                     {/* 더보기 토글 버튼 */}
                     <button
@@ -95,7 +87,7 @@ export default function SubNav() {
                     </button>
                 </div>
 
-                {/* 2행: 확장 메뉴 (FIRE, 건보료, 배당주 로드맵) */}
+                {/* 2행: 확장 메뉴 (FIRE, 건보료, 순자산 등급) */}
                 <AnimatePresence>
                     {isExpanded && (
                         <motion.div
@@ -111,15 +103,9 @@ export default function SubNav() {
                                         <Link
                                             key={item.href}
                                             href={item.href}
-                                            onClick={(e) => {
-                                                if (item.href === '/dividend') {
-                                                    e.preventDefault();
-                                                    alert('준비 중인 기능입니다.');
-                                                }
-                                            }}
                                             className={`flex items-center justify-center h-full transition-colors ${isActive(item.href) ? 'text-blue-600 font-bold' : 'text-gray-500'}`}
                                         >
-                                            <span className="text-xs">{item.name.split(' ')[0]}</span>
+                                            <span className="text-[10px] sm:text-xs text-center leading-tight px-1">{item.name}</span>
                                             {item.isNew && (
                                                 <span className="ml-1 text-[8px] bg-red-500 text-white px-1 py-0.5 rounded-full font-bold">N</span>
                                             )}

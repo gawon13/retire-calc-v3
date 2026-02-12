@@ -43,6 +43,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://retirecalc.co.kr/dividend</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://retirecalc.co.kr/insight</loc>
     <lastmod>2026-02-11</lastmod>
     <changefreq>weekly</changefreq>

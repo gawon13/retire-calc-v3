@@ -12,7 +12,7 @@ export const CALCULATORS = [
     { name: '자녀계좌 계산기', href: '/kids-invest', icon: 'Baby', isNew: false },
     { name: 'FIRE 계산기', href: '/fire', icon: 'Flame', isNew: false },
     { name: '건보료 판독기', href: '/health', icon: 'Stethoscope', isNew: false },
-    { name: '배당주 로드맵', href: '/dividend', icon: 'DollarSign', isNew: true },
+    { name: '순자산 등급', href: '/dividend', icon: 'Trophy', isNew: true },
 ];
 
 /**

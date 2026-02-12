@@ -48,14 +48,29 @@ async function main() {
 
     console.log(`Total fetched: ${allArticles.length} articles\n`);
 
-    // 4. 저장
-    let newCount = 0;
+    // 4. 중복 제거 및 분류
+    const MAX_ARTICLES_PER_RUN = 30;
+    const candidates: { raw: typeof allArticles[0]; id: string; category: string; priority: 1 | 2 | 3 }[] = [];
+
     for (const raw of allArticles) {
         const id = generateId(raw.sourceUrl);
-
         if (isDuplicate(id, existingIds)) continue;
 
         const { category, priority } = classify(raw.title, raw.rawSummary);
+        candidates.push({ raw, id, category, priority });
+    }
+
+    // P1 > P2 > P3 순으로 정렬 후 최대 30개 선택
+    candidates.sort((a, b) => a.priority - b.priority);
+    const selected = candidates.slice(0, MAX_ARTICLES_PER_RUN);
+    const skipped = candidates.length - selected.length;
+
+    console.log(`Candidates: ${candidates.length} (P1: ${candidates.filter(c => c.priority === 1).length}, P2: ${candidates.filter(c => c.priority === 2).length}, P3: ${candidates.filter(c => c.priority === 3).length})`);
+    console.log(`Selected: ${selected.length}, Skipped: ${skipped}\n`);
+
+    // 5. 저장
+    let newCount = 0;
+    for (const { raw, id, category, priority } of selected) {
         const slug = generateSlug(raw.title, raw.source);
         const date = raw.publishedAt.slice(0, 10);
         const filename = `${date}-${slug}.json`;
@@ -99,7 +114,7 @@ async function main() {
         console.log(`  + [P${priority}] ${raw.source.toUpperCase()}: ${raw.title}`);
     }
 
-    console.log(`\nDone: ${newCount} new articles collected`);
+    console.log(`\nDone: ${newCount} new articles collected (${skipped} skipped by 30-article limit)`);
 }
 
 main().catch((err) => {

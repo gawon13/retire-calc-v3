@@ -124,14 +124,7 @@ export default function Header() {
                                     ? 'text-blue-600 bg-blue-50'
                                     : 'text-gray-700 hover:bg-gray-50'
                                     }`}
-                                onClick={(e) => {
-                                    if (item.href === '/dividend') {
-                                        e.preventDefault();
-                                        alert('준비 중인 기능입니다.');
-                                        return;
-                                    }
-                                    setIsMenuOpen(false);
-                                }}
+                                onClick={() => setIsMenuOpen(false)}
                             >
                                 <span>{item.name}</span>
                                 {item.isNew && (
