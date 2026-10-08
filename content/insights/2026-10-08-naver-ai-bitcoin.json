@@ -1,0 +1,16 @@
+{
+  "id": "850914fcea24",
+  "title": "양자컴퓨터보다 AI가 먼저?…\"비트코인·이더리움 암호체계 뚫릴 수도\"",
+  "slug": "naver-ai-bitcoin",
+  "source": "naver",
+  "sourceUrl": "https://www.newsis.com/view/NISX20261008_0003818974",
+  "category": "crypto",
+  "priority": 3,
+  "rawSummary": "드레이크가 지적한 것은 비트코인과 이더리움이 거래 서명에 사용하는 ECDSA다. ECDSA는 가상자산 소유자가 실제로 거래를 승인했는지 확인하는 기술이다. 가상자산을 전송하면 지갑의 공개키가 블록체인에 노출된다.... ",
+  "publishedAt": "2026-10-08T15:05:00.000Z",
+  "collectedAt": "2026-10-08T15:57:53.074Z",
+  "status": "raw",
+  "adminSummary": null,
+  "adminKeyPoints": null,
+  "adminPublishedAt": null
+}
