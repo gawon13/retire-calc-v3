@@ -1,0 +1,16 @@
+{
+  "id": "7eb9e50c45a5",
+  "title": "북한 해커 '가짜 채용면접'으로 바이낸스 해킹",
+  "slug": "naver-8b9611d2",
+  "source": "naver",
+  "sourceUrl": "https://www.safetimes.co.kr/news/articleView.html?idxno=247224",
+  "category": "crypto",
+  "priority": 3,
+  "rawSummary": "이어 비트코인 1만8270개와 이더리움 2961.9개를 이체했다. 특히 이더리움 네트워크 공격 과정에선 EIP-7702라는 승인 권한을 악용해 미리 준비한 50개의 사전 서명으로 자산인출에 대한 위임 인증을 받는 수법으로... ",
+  "publishedAt": "2026-11-05T05:36:00.000Z",
+  "collectedAt": "2026-11-05T06:00:45.497Z",
+  "status": "raw",
+  "adminSummary": null,
+  "adminKeyPoints": null,
+  "adminPublishedAt": null
+}
